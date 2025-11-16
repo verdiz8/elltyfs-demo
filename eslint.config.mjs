@@ -1,0 +1,32 @@
+// eslint.config.mjs
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+import { FlatCompat } from "@eslint/eslintrc";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+});
+
+// const eslintConfig = [
+//   ...compat.extends("next/core-web-vitals", "next/typescript"),
+// ];
+
+// ✅ drop "next/typescript", keep only core rules
+const eslintConfig = [
+  ...compat.extends("next/core-web-vitals"),
+  {
+    rules: {
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+      "@typescript-eslint/explicit-function-return-type": "warn",
+      "@typescript-eslint/no-explicit-any": "warn",
+
+      "no-unused-vars": "off",
+      "no-console": "warn",
+    },
+  },
+];
+
+export default eslintConfig;
