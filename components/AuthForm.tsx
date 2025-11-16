@@ -12,9 +12,11 @@ export default function AuthForm({ onAuth }: AuthFormProps) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     setIsSubmitting(true);
 
     try {
@@ -24,15 +26,20 @@ export default function AuthForm({ onAuth }: AuthFormProps) {
         body: JSON.stringify({ username, password }),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
+        // Clear form
+        setUsername("");
+        setPassword("");
+        // Trigger auth refresh in parent
         onAuth();
       } else {
-        const error = await response.json();
-        alert(error.error || "Authentication failed");
+        setError(data.error || "Authentication failed");
       }
     } catch (error) {
       console.error("Auth error:", error);
-      alert("Authentication failed");
+      setError("Authentication failed");
     } finally {
       setIsSubmitting(false);
     }
@@ -41,6 +48,8 @@ export default function AuthForm({ onAuth }: AuthFormProps) {
   return (
     <div className="rounded-lg bg-gray-800 p-6">
       <h2 className="mb-4 text-xl font-bold">{isLogin ? "Login" : "Register"}</h2>
+
+      {error && <div className="mb-4 rounded bg-red-600 p-3 text-white">{error}</div>}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -75,7 +84,10 @@ export default function AuthForm({ onAuth }: AuthFormProps) {
       </form>
 
       <button
-        onClick={() => setIsLogin(!isLogin)}
+        onClick={() => {
+          setIsLogin(!isLogin);
+          setError("");
+        }}
         className="mt-4 w-full text-sm text-blue-400 hover:text-blue-300"
       >
         {isLogin ? "Need an account? Register" : "Have an account? Login"}

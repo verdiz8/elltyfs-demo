@@ -1,26 +1,36 @@
 // lib/db.ts
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from "mongodb";
 
-if (!process.env.MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable');
+// Define the environment variables with proper typing
+interface ProcessEnv {
+  MONGODB_URI: string;
+  MONGODB_NAME?: string;
+  NODE_ENV?: string;
 }
 
-const uri = process.env.MONGODB_URI;
+// Type assertion for process.env
+const env = process.env as unknown as ProcessEnv;
+
+if (!env.MONGODB_URI) {
+  throw new Error("Please define the MONGODB_URI environment variable");
+}
+
+const uri = env.MONGODB_URI;
 const options = {};
 
-let client;
+let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
-if (process.env.NODE_ENV === 'development') {
-  let globalWithMongo = global as typeof globalThis & {
-    _mongoClientPromise?: Promise<MongoClient>;
-  };
+declare global {
+  var _mongoClientPromise: Promise<MongoClient> | undefined;
+}
 
-  if (!globalWithMongo._mongoClientPromise) {
+if (env.NODE_ENV === "development") {
+  if (!global._mongoClientPromise) {
     client = new MongoClient(uri, options);
-    globalWithMongo._mongoClientPromise = client.connect();
+    global._mongoClientPromise = client.connect();
   }
-  clientPromise = globalWithMongo._mongoClientPromise;
+  clientPromise = global._mongoClientPromise;
 } else {
   client = new MongoClient(uri, options);
   clientPromise = client.connect();
@@ -28,5 +38,5 @@ if (process.env.NODE_ENV === 'development') {
 
 export async function getDb() {
   const client = await clientPromise;
-  return client.db(process.env.MONGODB_NAME || 'elltydemo');
+  return client.db(env.MONGODB_NAME || "elltydemo");
 }
