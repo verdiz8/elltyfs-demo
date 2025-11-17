@@ -4,8 +4,8 @@
 import { useState, useEffect } from "react";
 import { CalculationNode } from "@/types";
 import TreeView from "@/components/TreeView";
-import AuthForm from "@/components/AuthForm";
 import StartChainForm from "@/components/StartChainForm";
+import AuthModal from "@/components/AuthModal";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function Home() {
@@ -23,8 +23,8 @@ export default function Home() {
   const refreshTree = () => setRefresh((prev) => prev + 1);
 
   const handleAuthSuccess = () => {
-    refreshAuth(); // Refresh auth state
-    refreshTree(); // Refresh tree data
+    refreshAuth();
+    refreshTree();
   };
 
   if (isLoading) {
@@ -43,31 +43,41 @@ export default function Home() {
           <p className="text-center text-gray-400">Communicate through mathematical operations</p>
         </header>
 
-        {!user ? (
-          <div className="mx-auto max-w-md">
-            <AuthForm onAuth={handleAuthSuccess} />
-          </div>
-        ) : (
-          <div className="mb-6">
-            <div className="mb-4 flex items-center justify-between">
-              <div>
-                <p>Welcome, {user.username}!</p>
+        {/* Header with Auth/User Info */}
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            {user ? (
+              <div className="flex items-center space-x-4">
+                <span className="text-lg">Welcome, {user.username}!</span>
                 <button
                   onClick={async () => {
                     await fetch("/api/auth/logout", { method: "POST" });
                     refreshAuth();
                     refreshTree();
                   }}
-                  className="text-sm text-red-400 hover:text-red-300"
+                  className="text-sm text-red-400 underline hover:text-red-300"
                 >
                   Logout
                 </button>
               </div>
-              <StartChainForm onSuccess={refreshTree} />
-            </div>
+            ) : (
+              <div className="text-gray-400">
+                Join the conversation! Login to start calculating.
+              </div>
+            )}
+          </div>
+
+          {!user && <AuthModal onAuth={handleAuthSuccess} />}
+        </div>
+
+        {/* Start Chain Form (only for logged-in users) */}
+        {user && (
+          <div className="mb-6">
+            <StartChainForm onSuccess={refreshTree} />
           </div>
         )}
 
+        {/* Calculation Tree */}
         <TreeView nodes={tree} currentUser={user} onUpdate={refreshTree} />
       </div>
     </div>

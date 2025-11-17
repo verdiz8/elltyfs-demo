@@ -28,31 +28,41 @@ export default function StartChainForm({ onSuccess }: StartChainFormProps) {
       if (response.ok) {
         setStartingNumber("");
         onSuccess();
+      } else {
+        const error = await response.json();
+        alert(error.error || "Failed to start chain");
       }
     } catch (error) {
       console.error("Failed to start chain:", error);
+      alert("Failed to start chain");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex space-x-2">
-      <input
-        type="number"
-        value={startingNumber}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStartingNumber(e.target.value)}
-        className="w-32 rounded bg-gray-700 px-3 py-2 text-white"
-        placeholder="Starting number"
-        required
-      />
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:opacity-50"
-      >
-        {isSubmitting ? "Starting..." : "Start Chain"}
-      </button>
-    </form>
+    <div className="mb-6 rounded-lg bg-gray-800 p-4">
+      <h3 className="mb-3 text-lg font-semibold">Start a New Calculation Chain</h3>
+      <form onSubmit={handleSubmit} className="flex items-end space-x-3">
+        <div className="flex-1">
+          <label className="mb-1 block text-sm text-gray-400">Starting Number</label>
+          <input
+            type="number"
+            value={startingNumber}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStartingNumber(e.target.value)}
+            className="w-full rounded bg-gray-700 px-3 py-2 text-white"
+            placeholder="Enter a number to start..."
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="rounded bg-green-600 px-6 py-2 whitespace-nowrap text-white hover:bg-green-700 disabled:opacity-50"
+        >
+          {isSubmitting ? "Starting..." : "Start Chain"}
+        </button>
+      </form>
+    </div>
   );
 }

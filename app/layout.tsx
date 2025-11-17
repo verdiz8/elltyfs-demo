@@ -6,8 +6,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "SureSales | Store Management Platform",
-  description: "Mobile-first POS and inventory management app for small businesses",
+  title: "Ellty FS",
+  description: "Demo fullstack app for Ellty",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

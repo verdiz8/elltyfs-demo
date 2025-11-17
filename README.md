@@ -1,4 +1,6 @@
 ```bash
+# 203
+- register modal added
 # 202
 - api s added
 - reg and login works
