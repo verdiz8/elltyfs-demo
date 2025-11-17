@@ -14,46 +14,60 @@ interface TreeNodeProps {
 export default function TreeNode({ node, currentUser, onUpdate }: TreeNodeProps) {
   const [showReplyForm, setShowReplyForm] = useState(false);
 
-  const marginLeft = node.depth * 24;
+  // reduced indentation
+  const marginLeft = node.depth * 16;
 
-  const handleReplyClick = (): void => {
-    setShowReplyForm(!showReplyForm);
-  };
-
-  const handleReplySuccess = (): void => {
+  const handleReplyClick = () => setShowReplyForm(!showReplyForm);
+  const handleReplySuccess = () => {
     setShowReplyForm(false);
     onUpdate();
   };
 
+  const isRoot = node.parentId === null;
+
   return (
-    <div style={{ marginLeft: `${marginLeft}px` }} className="border-l-2 border-gray-600 py-2 pl-4">
-      <div className="rounded-lg bg-gray-800 p-4">
+    <div style={{ marginLeft }} className="border-l border-gray-700 py-1 pl-3">
+      <div className="rounded-md bg-gray-800 p-2">
+        {/* TOP ROW */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <span className="text-2xl font-bold text-blue-400">{node.value}</span>
+          <div className="flex items-center space-x-2">
+            <span
+              className={`text-xl font-semibold ${isRoot ? "text-blue-400" : "text-violet-300"}`}
+            >
+              {node.value}
+            </span>
+
             {node.operation && (
-              <span className="text-sm text-gray-400">
+              <span className={`text-sm ${isRoot ? "text-orange-300" : "text-gray-400"}`}>
                 ({node.operation} {node.rightOperand})
               </span>
             )}
           </div>
 
-          <div className="text-right text-sm text-gray-400">
-            <div>by {node.username}</div>
-            <div>{new Date(node.createdAt).toLocaleDateString()}</div>
+          <div className="text-right leading-tight text-gray-500">
+            <div className="text-sm">
+              by{" "}
+              <span className={isRoot ? "text-blue-400" : "text-violet-300"}>{node.username}</span>
+            </div>
+            <div className="text-xs">{new Date(node.createdAt).toLocaleDateString()}</div>
           </div>
         </div>
 
+        {/* Reply button */}
         {currentUser && (
-          <div className="mt-2">
+          <div className="mt-1">
             <button
               onClick={handleReplyClick}
-              className="text-sm text-blue-400 hover:text-blue-300"
+              className="text-xs text-blue-400 hover:text-blue-300"
             >
               {showReplyForm ? "Cancel" : "Reply"}
             </button>
 
-            {showReplyForm && <ReplyForm parentNode={node} onSuccess={handleReplySuccess} />}
+            {showReplyForm && (
+              <div className="mt-2">
+                <ReplyForm parentNode={node} onSuccess={handleReplySuccess} />
+              </div>
+            )}
           </div>
         )}
       </div>
